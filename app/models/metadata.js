@@ -96,7 +96,7 @@ MetadataSchema.statics = {
         return objId;
       });
 
-      return await this.findOne({ $and: [{ _organization: { $in: orgObj } }, { id: id }] });
+      return await this.findOne({ $and: [{ _organization: { $in: orgObj } }, { _id: id }] });
     } catch(err) {
       err.message = Util.message.metadata.notFound;
       err.status = Util.code.notFound;
