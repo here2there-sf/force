@@ -26,7 +26,6 @@ class AccessControlOwner {
     return (req, res, next) => authenticate(req, res, async (err) => {
       // error when _id dne
       const organizations = await ApiUtil.getOrganizations(req.headers.authorization);
-      console.log(req.body);
       const allowed = await Metadata.findByOrganization(organizations, req.body.id, next);
 
       if (err || !req.currentUser || !allowed) {
@@ -40,18 +39,11 @@ class AccessControlOwner {
   // Push access control
   push = () => {
     return (req, res, next) => authenticate(req, res, async (err) => {
-      // Metadata organization is owned by user
-      req.metadata = await Metadata.findOne({
-        $and: [
-          { _id: req.body.metadata_id },
-          { _organization: { $in: req.organizations } },
-        ],
-      });
+      // error when id dne
+      req.organization = await ApiUtil.organizationExists(req.headers.authorization, req.body.organization.id);
+      const allowed = await Metadata.findByOrganization([req.organization], req.body.id, next);
 
-      // Destination organization is owned by user
-      req.destination = await ApiUtil.organizationExists(req.headers.authorization, req.body.organization_id);
-
-      if (err || !req.currentUser || !req.metadata || !req.destination) {
+      if (err || !req.organization || !allowed) {
         res.sendStatus(Util.code.bad);
         return;
       }

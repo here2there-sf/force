@@ -81,7 +81,7 @@ class ForceUtil {
   };
 
   pushMetadata = async (organization, metadata, next) => {
-    let conn = await this.login(organization, next);
+    let conn = await this.loginOauth2(organization.oauth2, next);
     if (!conn) return;
 
     let dataBuffer = await AwsUtil.getObject(metadata.key);

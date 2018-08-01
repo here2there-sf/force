@@ -21,17 +21,7 @@ class JSForceController extends BaseController {
 
   push = async (req, res, next) => {
     try {
-      console.log(req.headers);
-      const organization = await ApiUtil.organizationExists(req.headers, req.body.organization_id);
-      if(!organization) return;
-
-      const metadata = await Metadata.exists(req.body.metadata_id, next);
-      if(!metadata) return;
-
-      const loggedIn = await ForceUtil.login(organization, next);
-      if (!loggedIn) return;
-
-      const pushRequest = await ForceUtil.pushMetadata(organization, metadata, next);
+      const pushRequest = await ForceUtil.pushMetadata(req.organization, req.body, next);
       res.json(pushRequest);
     } catch(err) {
       next(err);
