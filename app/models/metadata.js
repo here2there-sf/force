@@ -90,6 +90,7 @@ MetadataSchema.statics = {
 
   async findByOrganization(organizations, id, next) {
     try {
+      console.log(organizations);
       let orgObj = await Promise.all(organizations.map(async (obj) => {
         return mongoose.Types.ObjectId(obj.id);
       })).then(async (objId) => {

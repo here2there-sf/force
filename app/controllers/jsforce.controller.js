@@ -21,6 +21,7 @@ class JSForceController extends BaseController {
 
   push = async (req, res, next) => {
     try {
+      console.log('here');
       const pushRequest = await ForceUtil.pushMetadata(req.organization, req.body, next);
       res.json(pushRequest);
     } catch(err) {
