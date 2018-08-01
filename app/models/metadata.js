@@ -88,7 +88,7 @@ MetadataSchema.statics = {
     ]);
   },
 
-  async findByOrganization(organizations, key, next) {
+  async findByOrganization(organizations, id, next) {
     try {
       let orgObj = await Promise.all(organizations.map(async (obj) => {
         return mongoose.Types.ObjectId(obj.id);
@@ -96,7 +96,7 @@ MetadataSchema.statics = {
         return objId;
       });
 
-      return await this.findOne({ $and: [{ _organization: { $in: orgObj } }, { key: key } ] });
+      return await this.findOne({ $and: [{ _organization: { $in: orgObj } }, { id: id }] });
     } catch(err) {
       err.message = Util.message.metadata.notFound;
       err.status = Util.code.notFound;
