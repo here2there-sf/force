@@ -3,7 +3,6 @@ import Constants from '../config/constants';
 import AwsUtil from './aws.util';
 import Metadata from '../models/metadata';
 import jsforce from 'jsforce';
-import EncryptionUtil from '../lib/encryption.util';
 
 
 class ForceUtil {
@@ -13,11 +12,9 @@ class ForceUtil {
     let conn = new jsforce.Connection();
     try {
       await conn.login(params.email, params.password + params.securitytoken);
-      return conn;
     } catch(err) {
       err.message = Util.message.salesforce.loginError;
       err.status = Util.code.bad;
-      console.log(err);
       next(err);
     }
   };

@@ -9,13 +9,19 @@ import Util from '../lib/util';
 class MetadataController extends BaseController {
   listMetadataTypes = async (req, res, next) => {
     try {
-      const organization = await ApiUtil.organizationExists(req.headers.authorization, req.body.id);
-      if(!organization) {
-        let err = new Error();
-        err.message = Util.message.organization.notFound;
-        err.status = Util.code.notFound;
-        console.log(err);
-        return next(err);
+      let organization;
+      if (req.body.id) {
+        organization = await ApiUtil.organizationExists(req.headers.authorization, req.body.id);
+        if(!organization) {
+          let err = new Error();
+          err.message = Util.message.organization.notFound;
+          err.status = Util.code.notFound;
+          console.log(err);
+          return next(err);
+        }
+      } else {
+        organization = await ForceUtil.authenticate(req.body, next);
+        if (!organization) return;
       }
 
       console.log('Fetching Metadata...');
