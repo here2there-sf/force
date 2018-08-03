@@ -4,6 +4,7 @@ import AwsUtil from '../lib/aws.util';
 import ForceUtil from '../lib/force.util';
 import ApiUtil from '../lib/api.util';
 import Util from '../lib/util';
+import mongoose from 'mongoose';
 
 
 class MetadataController extends BaseController {
@@ -45,6 +46,15 @@ class MetadataController extends BaseController {
       const organizations = await ApiUtil.getOrganizations(req.headers.authorization);
 
       let metadata = await Metadata.aggregateOrganizations(organizations, next);
+
+      metadata = await Promise.all(metadata.map(async (obj) => {
+        obj['organization'] = await organizations.find(async (org) => {
+          return org.id === obj._organization.toString();
+        });
+      })).then(async (objId) => {
+        return objId;
+      });
+
       res.json(metadata);
     } catch(err) {
       console.log(err);
