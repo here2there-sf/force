@@ -71,8 +71,8 @@ MetadataSchema.statics = {
 
     return await this.aggregate([
       { $match: { _organization: { $in: orgObj }, type: 'one-off' } },
-      { $addFields: { 'organization': await organizations.find(async (org) => {
-        return await (mongoose.Types.ObjectId(org.id) === '$_organization');
+      { $addFields: { 'organization': organizations.find((org) => {
+        return org.id === '$_organization'.toString();
       }) } },
       { $project: {
         '_id': false,
