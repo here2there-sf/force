@@ -4,7 +4,6 @@ import AwsUtil from '../lib/aws.util';
 import ForceUtil from '../lib/force.util';
 import ApiUtil from '../lib/api.util';
 import Util from '../lib/util';
-import mongoose from 'mongoose';
 
 
 class MetadataController extends BaseController {

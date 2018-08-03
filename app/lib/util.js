@@ -12,6 +12,10 @@ class Util {
     organization: {
       notFound: 'Organization was not found.',
     },
+    backup: {
+      retrieveProblem: 'There was a problem retrieving backup organization details.',
+      notFound: 'Backup was not found.',
+    },
   };
 
   code = {

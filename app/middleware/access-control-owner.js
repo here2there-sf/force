@@ -1,5 +1,6 @@
 import authenticate from './authenticate';
 import Metadata from '../models/metadata';
+import Backup from '../models/backup';
 import Util from '../lib/util';
 import ApiUtil from '../lib/api.util';
 
@@ -29,6 +30,21 @@ class AccessControlOwner {
       const allowed = await Metadata.findByOrganization(organizations, req.body.id, next);
 
       if (err || !req.currentUser || !allowed) {
+        res.sendStatus(Util.code.bad);
+        return;
+      }
+      next();
+    });
+  };
+
+  // Backup owner access control
+  backup = () => {
+    return (req, res, next) => authenticate(req, res, async (err) => {
+      // error when _id dne
+      const organizations = await ApiUtil.getOrganizations(req.headers.authorization);
+      const allowed = await Backup.findByOrganization(organizations, req.body.id, next);
+
+      if (err || !organizations || !allowed) {
         res.sendStatus(Util.code.bad);
         return;
       }

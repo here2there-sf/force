@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import MetadataController from './controllers/metadata.controller';
+import BackupController from './controllers/backup.controller';
 import JSForceController from './controllers/jsforce.controller';
 import authenticate from './middleware/authenticate';
 import AccessControlOwner from './middleware/access-control-owner';
@@ -18,6 +19,11 @@ routes.post('/one-off/status/deploy', authenticate, JSForceController.checkDeplo
 routes.get('/metadata', authenticate, MetadataController.fetchOneOffPulls);
 routes.post('/metadata/list', authenticate, MetadataController.listMetadataTypes);
 routes.post('/metadata/download', AccessControlOwner.metadata(), MetadataController.generateS3Url);
+
+// Backup
+routes.post('/backup', authenticate, BackupController.create);
+routes.get('/backups', authenticate, BackupController.fetch);
+routes.delete('/backup', AccessControlOwner.backup(), BackupController.delete);
 
 routes.use(errorHandler);
 
