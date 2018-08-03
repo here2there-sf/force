@@ -69,7 +69,7 @@ MetadataSchema.statics = {
       return objId;
     });
 
-    return await this.aggregate([
+    let metadata = await this.aggregate([
       { $match: { _organization: { $in: orgObj }, type: 'one-off' } },
       { $project: {
         '_id': false,
@@ -82,6 +82,14 @@ MetadataSchema.statics = {
         'updatedAt': '$updatedAt',
       } },
     ]);
+
+    for await (const obj of metadata) {
+      obj.organization = organizations.find((org) => {
+        return org.id === obj._organization.toString();
+      });
+    }
+
+    return metadata;
   },
 
   async findByOrganization(organizations, id, next) {

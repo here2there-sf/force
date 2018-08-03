@@ -46,16 +46,6 @@ class MetadataController extends BaseController {
       const organizations = await ApiUtil.getOrganizations(req.headers.authorization);
 
       let metadata = await Metadata.aggregateOrganizations(organizations, next);
-
-      metadata = await Promise.all(metadata.map(async (obj) => {
-        obj.organization = await organizations.find(async (org) => {
-          return mongoose.Types.ObjectId(org.id) === obj._organization;
-        });
-        return obj;
-      })).then((a) => {
-        return a;
-      });
-
       res.json(metadata);
     } catch(err) {
       console.log(err);
