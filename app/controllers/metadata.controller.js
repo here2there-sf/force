@@ -52,7 +52,9 @@ class MetadataController extends BaseController {
           return mongoose.Types.ObjectId(org.id) === obj._organization;
         });
         return obj;
-      }));
+      })).then((a) => {
+        return a;
+      });
 
       res.json(metadata);
     } catch(err) {
