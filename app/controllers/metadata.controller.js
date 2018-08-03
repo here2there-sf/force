@@ -51,9 +51,7 @@ class MetadataController extends BaseController {
         obj['organization'] = await organizations.find(async (org) => {
           return org.id === obj._organization.toString();
         });
-      })).then(async (objId) => {
-        return objId;
-      });
+      }));
 
       res.json(metadata);
     } catch(err) {
