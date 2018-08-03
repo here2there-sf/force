@@ -86,6 +86,7 @@ BackupSchema.statics = {
         '_id': false,
         'id': '$_id',
         '_organization': true,
+        'startDate': true,
         'frequency': true,
         'createdAt': true,
         'updatedAt': true,
