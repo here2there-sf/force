@@ -51,6 +51,7 @@ class MetadataController extends BaseController {
         obj.organization = await organizations.find(async (org) => {
           return mongoose.Types.ObjectId(org.id) === obj._organization;
         });
+        return obj;
       }));
 
       res.json(metadata);
