@@ -12,7 +12,8 @@ class JSForceController extends BaseController {
   ];
   checkDeployStatusWhiteList = [
     'push_id',
-    'org_id',
+    'organization_id',
+    'metadata_id',
   ];
 
   constructor() {
@@ -21,8 +22,9 @@ class JSForceController extends BaseController {
 
   push = async (req, res, next) => {
     try {
-      console.log('here');
-      const pushRequest = await ForceUtil.pushMetadata(req.organization, req.body, next);
+      let metadata = req.metadata;
+      let organization = req.organization;
+      const pushRequest = await ForceUtil.pushMetadata(organization, metadata, next);
       res.json(pushRequest);
     } catch(err) {
       next(err);
@@ -70,10 +72,7 @@ class JSForceController extends BaseController {
   checkDeployStatus = async (req, res, next) => {
     try {
       const params = this.filterParams(req.body, this.checkDeployStatusWhiteList);
-      console.log(params);
-
-      const organization = await ApiUtil.organizationExists(req.headers, req.body.organization_id);
-      if(!organization) return;
+      const organization = req.organization;
 
       let deployStatus = await ForceUtil.checkDeployStatus(organization, params.push_id, next);
       res.status(deployStatus.code).json(deployStatus.body);

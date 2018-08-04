@@ -25,7 +25,7 @@ class ApiUtil {
       request(options, (err, response, body) => {
         if(err) {
           console.log(err);
-          return reject(new Error());
+          return reject(err);
         }
         if(response.statusCode === Util.code.forbidden) {
           let error = new Error();

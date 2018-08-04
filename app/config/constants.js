@@ -95,7 +95,7 @@ const environmentConfigs = {
     salesforce: {
       email: process.env.TEST_SALESFORCE_EMAIL,
       password: process.env.TEST_SALESFORCE_PASSWORD,
-      securitytoken: process.env.TEST_SALESFORCE_SECURITY_TOKEN,
+      securityToken: process.env.TEST_SALESFORCE_SECURITY_TOKEN,
     },
   },
   production: {

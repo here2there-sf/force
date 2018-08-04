@@ -11,7 +11,7 @@ class ForceUtil {
   authenticate = async (params, next) => {
     let conn = new jsforce.Connection();
     try {
-      await conn.login(params.email, params.password + params.securitytoken);
+      await conn.login(params.email, params.password + params.securityToken);
     } catch(err) {
       err.message = Util.message.salesforce.loginError;
       err.status = Util.code.bad;
@@ -83,7 +83,6 @@ class ForceUtil {
   pushMetadata = async (organization, metadata, next) => {
     let conn = await this.loginOauth2(organization.oauth2, next);
     if (!conn) return;
-
     let dataBuffer = await AwsUtil.getObject(metadata.key);
     let options = {
       rollbackOnError: true,
@@ -152,35 +151,29 @@ class ForceUtil {
    * HELPER
    * Utility to call JsForce Metadata API Check Deploy Status
    *
-   * @param {object} organization
+   * @param {object} params
    * @param {string} id - status id
    * @param {function} next
    * @return {Promise<Object>}
    * */
-  checkDeployStatus = async (organization, id, next) => {
-    let conn = await this.login(organization, next);
-    if (!conn) return;
+  checkDeployStatus = async (params, id, next) => {
+    let conn;
+    try {
+      conn = await this.loginOauth2(params.oauth2, next);
+      if (!conn) return;
 
-    console.log('Checking status for Deploy Request: ' + id);
-    let status = await conn.metadata.checkDeployStatus(id, true).then(function(status) {
-      conn.logout();
-      return status;
-    }, function(err) {
-      conn.logout();
+      console.log('Checking status for Deploy Request: ' + id);
+      let status = await conn.metadata.checkDeployStatus(id, true);
+      // todo add checking for other return types and errors
+      return {
+        code: Util.code.ok,
+        body: status,
+      };
+    } catch(err) {
       console.log(err);
-    });
-
-    // todo add checking for other return types and errors
-    if (status.done) {
-      return {
-        code: Util.code.ok,
-        body: status,
-      };
-    } else {
-      return {
-        code: Util.code.ok,
-        body: status,
-      };
+      next(err);
+    } finally {
+      conn.logout();
     }
   };
 

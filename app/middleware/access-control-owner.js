@@ -57,9 +57,9 @@ class AccessControlOwner {
     return (req, res, next) => authenticate(req, res, async (err) => {
       // error when id dne
       req.organization = await ApiUtil.organizationExists(req.headers.authorization, req.body.organization_id);
-      const allowed = await Metadata.findByOrganization(new Array(req.organization.organization), req.body.id, next);
+      req.metadata = await Metadata.exists(req.body.metadata_id, next);
 
-      if (err || !req.organization || !allowed) {
+      if (err || !req.organization || !req.metadata) {
         res.sendStatus(Util.code.bad);
         return;
       }
