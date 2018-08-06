@@ -183,9 +183,6 @@ let start = async () => {
         let difference = (((currentDate.getTime() / 1000) - (backup.startDate.getTime() / 1000)));
 
         let daysPassed = Math.floor(difference / 86400);
-        console.log(daysPassed);
-
-        console.log(daysPassed % daysWanted);
         if(!(daysPassed % daysWanted)) {
           let organization = await ApiUtil.organizationExists(authorization.token, backup._organization);
           if(!organization) {
@@ -205,8 +202,6 @@ let start = async () => {
     });
   } catch(err) {
     console.log(err);
-  } finally {
-    mongoose.connection.close();
   }
 };
 

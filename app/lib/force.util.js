@@ -230,10 +230,11 @@ class ForceUtil {
       if (!conn) return;
 
       let status = await conn.metadata.checkRetrieveStatus(sid);
-      console.log(status);
       // todo add checking for other return types and errors
       if (status.done === 'true') {
-        let bucketObject = await AwsUtil.uploadBackup(organization.organization.user, organization.organization.id, status.zipFile);
+        let bucketObject = await AwsUtil.uploadBackup(organization.organization.user,
+          organization.organization.id, status.zipFile);
+
         // create new metadata record
         let metadata = await new Metadata({
           key: bucketObject.key,

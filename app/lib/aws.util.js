@@ -61,22 +61,26 @@ class AwsUtil {
   };
 
   uploadBackup = async (uid, oid, zip) => {
-    let filename = await this._generateId(uid, oid);
-    let key = Constants.aws.folder.backup + filename;
-    let file = new Buffer.from(zip, 'base64');
-    let s3 = new aws.S3({
-      params: {
-        Bucket: Constants.aws.s3_bucket,
-        Key: key,
-      },
-    });
-    return {
-      key: key,
-      promise: s3.upload({
-        Body: file,
-        ContentType: 'application/zip',
-      }).promise(),
-    };
+    try {
+      let filename = await this._generateId(uid, oid);
+      let key = Constants.aws.folder.backup + filename;
+      let file = new Buffer.from(zip, 'base64');
+      let s3 = new aws.S3({
+        params: {
+          Bucket: Constants.aws.s3_bucket,
+          Key: key,
+        },
+      });
+      return {
+        key: key,
+        promise: await s3.upload({
+          Body: file,
+          ContentType: 'application/zip',
+        }).promise(),
+      };
+    } catch(err) {
+      console.log(err);
+    }
   };
 
   /** *
