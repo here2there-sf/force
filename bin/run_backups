@@ -1,12 +1,14 @@
+#! /app/bin/node
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 require('babel-register');
 require('dotenv').config();
 let mongoose = require('mongoose');
-let Constants = require('../config/constants').default;
-let Backup = require('../models/backup').default;
-let ForceUtil = require('../lib/force.util').default;
-let Util = require('../lib/util').default;
-let ApiUtil = require('../lib/api.util').default;
+let Constants = require('../app/config/constants').default;
+let Backup = require('../app/models/backup').default;
+let ForceUtil = require('../app/lib/force.util').default;
+let Util = require('../app/lib/util').default;
+let ApiUtil = require('../app/lib/api.util').default;
 
 
 mongoose.Promise = global.Promise;
