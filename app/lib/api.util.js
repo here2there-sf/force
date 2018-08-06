@@ -93,7 +93,6 @@ class ApiUtil {
           resolve(body);
         }
       });
-
     });
   };
 }

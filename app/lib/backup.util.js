@@ -167,40 +167,46 @@ let complete = () => {
 };
 
 let start = async () => {
-  let authorization = await getAuthorization();
-  if(!authorization) return;
+  try {
+    let authorization = await getAuthorization();
+    if(!authorization) return;
 
-  let backups = await retrieveBackups();
-  totalBackups = backups.length;
+    let backups = await retrieveBackups();
+    totalBackups = backups.length;
 
-  backups.forEach(async (backup) => {
-    try {
-      let daysWanted = backup.frequency / 86400;
+    backups.forEach(async (backup) => {
+      try {
+        let daysWanted = backup.frequency / 86400;
 
-      let currentDate = new Date();
-      let difference = (((currentDate.getTime() / 1000) - (backup.startDate.getTime() / 1000)));
+        let currentDate = new Date();
+        let difference = (((currentDate.getTime() / 1000) - (backup.startDate.getTime() / 1000)));
 
-      let daysPassed = Math.floor(difference / 86400);
-      console.log(daysPassed);
+        let daysPassed = Math.floor(difference / 86400);
+        console.log(daysPassed);
 
-      console.log(daysPassed % daysWanted);
-      if(!(daysPassed % daysWanted)) {
-        let organization = await ApiUtil.organizationExists(authorization.token, backup._organization);
-        if(!organization) {
-          return current++;
+        console.log(daysPassed % daysWanted);
+        if(!(daysPassed % daysWanted)) {
+          let organization = await ApiUtil.organizationExists(authorization.token, backup._organization);
+          if(!organization) {
+            return current++;
+          }
+          console.log('Starting backup for ' + backup._organization);
+          let pull = await startPull(organization);
+          await checkStatus(organization, pull);
+          complete();
+        } else {
+          current++;
+          complete();
         }
-        console.log('Starting backup for ' + backup._organization);
-        let pull = await startPull(organization);
-        await checkStatus(organization, pull);
-        complete();
-      } else {
-        current++;
-        complete();
+      } catch(err) {
+        console.log(err);
       }
-    } catch(err) {
-      console.log(err);
-    }
-  });
+    });
+  } catch(err) {
+    console.log(err);
+  } finally {
+    mongoose.connection.close();
+  }
 };
 
 start();
