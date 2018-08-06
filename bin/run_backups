@@ -183,7 +183,8 @@ let start = async () => {
         let difference = (((currentDate.getTime() / 1000) - (backup.startDate.getTime() / 1000)));
 
         let daysPassed = Math.floor(difference / 86400);
-        if(!(daysPassed % daysWanted)) {
+
+        if(!(daysPassed % daysWanted) && daysPassed > 0) {
           let organization = await ApiUtil.organizationExists(authorization.token, backup._organization);
           if(!organization) {
             return current++;
