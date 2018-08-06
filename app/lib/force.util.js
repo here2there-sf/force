@@ -201,6 +201,60 @@ class ForceUtil {
       });
     });
   };
+
+  /**
+   * BACKUPS
+   * */
+  backupMetadata = async (organization, types, next) => {
+    let conn;
+    try {
+      conn = await this.loginOauth2(organization.oauth2, next);
+      if (!conn) return;
+      let packageXml = await this.generatePackage(types);
+      return conn.metadata.retrieve( { unpackaged: packageXml } ).then(function(pullRequest) {
+        return pullRequest;
+      }, (err) => {
+        console.log(err);
+        return next(err);
+      });
+    } catch(err) {
+      console.log(err);
+      next(err);
+    }
+  };
+
+  checkBackupStatus = async (organization, sid, next) => {
+    let conn;
+    try {
+      conn = await this.loginOauth2(organization.oauth2, next);
+      if (!conn) return;
+
+      let status = await conn.metadata.checkRetrieveStatus(sid);
+      console.log(status);
+      // todo add checking for other return types and errors
+      if (status.done === 'true') {
+        let bucketObject = await AwsUtil.uploadBackup(organization.organization.user, organization.organization.id, status.zipFile);
+        // create new metadata record
+        let metadata = await new Metadata({
+          key: bucketObject.key,
+          type: 'backup',
+          _organization: organization.organization.id,
+        });
+        return {
+          code: Util.code.created,
+          body: await metadata.save(),
+        };
+      } else {
+        return {
+          code: Util.code.ok,
+          body: status,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  };
 }
 
 export default new ForceUtil();

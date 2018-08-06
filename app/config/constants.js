@@ -52,11 +52,19 @@ const defaultConfig = {
     },
   },
   api: {
+    auth: {
+      base: process.env.AUTH_BASE || 'https://here2there-auth.herokuapp.com',
+      login: process.env.AUTH_LOGIN || '/auth/login',
+    },
     organization: {
       base: process.env.ORG_BASE || 'https://here2there-organization.herokuapp.com',
       getOne: process.env.ORG_ONE || '/organization/',
       getAll: process.env.ORG_ALL || '/organizations',
     },
+  },
+  backup: {
+    username: process.env.BACKUP_USER,
+    password: process.env.BACKUP_PASS,
   },
   encryption: {
     key: process.env.ENCRYPTION_KEY || 't)X8aderv\\T_(NgfjO}x<]~1q)3T-h2I(}ZM#hhrD[a<}gi@w+Vshzlt\\MWBK*#-U@-"JU!xgB_6SH3GFP}f6kb%%)HE~2Zgjo)cH^!PHkN|UmD{B?GB<Qz43bNe)<%)h_-O`^9U3UC0Cm5}9LAmv5!6)AW\\7>Q~"B]E59c5}+m(Y#ut!0Is2E:%mF<[4bR!xxe}[)s87)}pKRIH6wHY(FN2uLFXyPF>\\aq1*Cen~XD4VLlTjogkUI#nGzsbIZ8C',

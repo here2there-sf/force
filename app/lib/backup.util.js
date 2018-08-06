@@ -1,0 +1,206 @@
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+require('babel-register');
+require('dotenv').config();
+let mongoose = require('mongoose');
+let Constants = require('../config/constants').default;
+let Backup = require('../models/backup').default;
+let ForceUtil = require('../lib/force.util').default;
+let Util = require('../lib/util').default;
+let ApiUtil = require('../lib/api.util').default;
+
+
+mongoose.Promise = global.Promise;
+mongoose.connect(Constants.mongo.uri);
+mongoose.connection.on('error', (err) => {
+  throw err;
+});
+
+const types = ['InstalledPackage',
+  'CustomLabels',
+  'CustomLabel',
+  'StaticResource',
+  'Scontrol',
+  'Certificate',
+  'AuraDefinitionBundle',
+  'ApexComponent',
+  'ApexPage',
+  'Queue',
+  'ExternalDataSource',
+  'NamedCredential',
+  'ExternalServiceRegistration',
+  'Role',
+  'Group',
+  'GlobalValueSet',
+  'StandardValueSet',
+  'CustomPermission',
+  'CustomObject',
+  'CustomField',
+  'Index',
+  'BusinessProcess',
+  'CompactLayout',
+  'RecordType',
+  'WebLink',
+  'ValidationRule',
+  'SharingReason',
+  'ListView',
+  'FieldSet',
+  'ReportType',
+  'Report',
+  'Dashboard',
+  'AnalyticSnapshot',
+  'CustomFeedFilter',
+  'Document',
+  'CustomPageWebLink',
+  'Letterhead',
+  'EmailTemplate',
+  'FlexiPage',
+  'CustomTab',
+  'CustomApplicationComponent',
+  'CustomApplication',
+  'EmbeddedServiceConfig',
+  'EmbeddedServiceBranding',
+  'Flow',
+  'FlowDefinition',
+  'EventSubscription',
+  'EventDelivery',
+  'AssignmentRules',
+  'AssignmentRule',
+  'AutoResponseRules',
+  'AutoResponseRule',
+  'EscalationRules',
+  'EscalationRule',
+  'PostTemplate',
+  'ApprovalProcess',
+  'HomePageComponent',
+  'HomePageLayout',
+  'CustomObjectTranslation',
+  'GlobalValueSetTranslation',
+  'StandardValueSetTranslation',
+  'ApexClass',
+  'ApexTrigger',
+  'ApexTestSuite',
+  'Profile',
+  'PermissionSet',
+  'CustomMetadata',
+  'DataCategoryGroup',
+  'RemoteSiteSetting',
+  'CspTrustedSite',
+  'MatchingRules',
+  'MatchingRule',
+  'DuplicateRule',
+  'CleanDataService',
+  'AuthProvider',
+  'EclairGeoData',
+  'CustomSite',
+  'ChannelLayout',
+  'ContentAsset',
+  'SharingRules',
+  'SharingOwnerRule',
+  'SharingCriteriaRule',
+  'SharingSet',
+  'Community',
+  'CallCenter',
+  'ConnectedApp',
+  'AppMenu',
+  'DelegateGroup',
+  'SiteDotCom',
+  'SamlSsoConfig',
+  'CorsWhitelistOrigin',
+  'ActionLinkGroupTemplate',
+  'TransactionSecurityPolicy',
+  'SynonymDictionary',
+  'PathAssistant',
+  'LeadConvertSettings',
+  'PlatformCachePartition',
+  'Settings'];
+
+const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+let totalBackups = 0;
+let current = 0;
+
+let getAuthorization = async () => {
+  let authorization = await ApiUtil.backupLogin();
+  if(!authorization) {
+    return console.log('Backup user is invalid.');
+  }
+  return authorization;
+};
+
+let retrieveBackups = async () => {
+  return await Backup.aggregate([
+    { $project: {
+      '_id': false,
+      'id': '$_id',
+      '_organization': true,
+      'startDate': true,
+      'frequency': true,
+      'createdAt': true,
+      'updatedAt': true,
+    } },
+  ]);
+};
+
+
+let startPull = async (organization) => {
+  return await ForceUtil.backupMetadata(organization, types, (err) => {
+    console.log(err);
+  });
+};
+
+let checkStatus = async (organization, pull) => {
+  let res = await ForceUtil.checkBackupStatus(organization, pull.id);
+  if (res.code === Util.code.ok) {
+    await snooze(4000);
+    return await checkStatus(organization, pull);
+  } else {
+    console.log('Backup complete for ' + organization.organization.id);
+    return current ++;
+  }
+};
+
+let complete = () => {
+  if(current === totalBackups) {
+    console.log('All backups completed');
+    mongoose.connection.close();
+  }
+};
+
+let start = async () => {
+  let authorization = await getAuthorization();
+  if(!authorization) return;
+
+  let backups = await retrieveBackups();
+  totalBackups = backups.length;
+
+  backups.forEach(async (backup) => {
+    try {
+      let daysWanted = backup.frequency / 86400;
+
+      let currentDate = new Date();
+      let difference = (((currentDate.getTime() / 1000) - (backup.startDate.getTime() / 1000)));
+
+      let daysPassed = Math.floor(difference / 86400);
+      console.log(daysPassed);
+
+      console.log(daysPassed % daysWanted);
+      if(!(daysPassed % daysWanted)) {
+        let organization = await ApiUtil.organizationExists(authorization.token, backup._organization);
+        if(!organization) {
+          return current++;
+        }
+        console.log('Starting backup for ' + backup._organization);
+        let pull = await startPull(organization);
+        await checkStatus(organization, pull);
+        complete();
+      } else {
+        current++;
+        complete();
+      }
+    } catch(err) {
+      console.log(err);
+    }
+  });
+};
+
+start();

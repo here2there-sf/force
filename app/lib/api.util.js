@@ -68,6 +68,34 @@ class ApiUtil {
       });
     });
   };
+
+  /**
+   * HELPER METHOD
+   * Login method for scheduled backups worker run.
+   * */
+  backupLogin = () => {
+    return new Promise((resolve, reject) => {
+      let options = {
+        url: Constants.api.auth.base + Constants.api.auth.login,
+        method: this.method.post,
+        json: true,
+        body: {
+          username: Constants.backup.username,
+          password: Constants.backup.password,
+        },
+      };
+
+      request(options, (err, response, body) => {
+        if(response.statusCode !== Util.code.ok) {
+          console.log(err);
+          resolve(null);
+        } else {
+          resolve(body);
+        }
+      });
+
+    });
+  };
 }
 
 export default new ApiUtil();
