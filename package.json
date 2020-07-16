@@ -56,7 +56,7 @@
     "install": "^0.12.0",
     "jsforce": "^1.8.5",
     "jsonwebtoken": "^8.3.0",
-    "lodash": "^4.16.4",
+    "lodash": "^4.17.19",
     "method-override": "^2.3.6",
     "mongoose": "^5.2.4",
     "morgan": "^1.7.0",
