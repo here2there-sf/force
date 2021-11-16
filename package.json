@@ -39,7 +39,7 @@
   "dependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.3",
-    "aws-sdk": "^2.269.1",
+    "aws-sdk": "^2.814.0",
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.0",
     "babel-eslint": "^7.0.0",
